@@ -1,0 +1,2 @@
+minimumReleaseAgeExclude:
+  - caniuse-lite@1.0.30001819

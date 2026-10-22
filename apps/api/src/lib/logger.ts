@@ -4,9 +4,15 @@ import { config } from "../config";
 import { configDotenv } from "dotenv";
 configDotenv();
 
+function metadataFields(value: unknown): Record<string, unknown> {
+  return value !== null && typeof value === "object"
+    ? value as Record<string, unknown>
+    : {};
+}
+
 const logFormat = winston.format.printf(
   info =>
-    `${info.timestamp} ${info.level} [${info.metadata.module ?? ""}:${info.metadata.method ?? ""}]: ${info.message} ${
+    `${info.timestamp} ${info.level} [${metadataFields(info.metadata).module ?? ""}:${metadataFields(info.metadata).method ?? ""}]: ${info.message} ${
       info.level.includes("error") || info.level.includes("warn")
         ? JSON.stringify(info.metadata, (_, value) => {
             if (value instanceof Error) {
@@ -28,7 +34,7 @@ const logFormat = winston.format.printf(
 // Filter function to prevent logging when zeroDataRetention is true
 const zeroDataRetentionFilter = winston.format(info => {
   if (
-    info.metadata?.zeroDataRetention === true ||
+    metadataFields(info.metadata).zeroDataRetention === true ||
     info.zeroDataRetention === true
   ) {
     return false; // Don't log this message
